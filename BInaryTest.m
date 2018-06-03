@@ -1,11 +1,14 @@
-tr_img_1 = tr_images(:,tr_labels==1);
-tr_img_0 = tr_images(:,tr_labels==0);
+label_c1=1;
+% label_c2=1;
+c2mask = tr_labels==3 | tr_labels==5;
+tr_img_c1 = tr_images(:,tr_labels==label_c1);
+tr_img_c2 = tr_images(:,c2mask);
 %mu_0 = mean(tr_img_1,2);
 %mu_1 = mean(tr_img_0,2);
 
-x = [tr_img_1 tr_img_0];
-labs = ones(size(tr_img_1,2),1);
-labs = [labs; -1*ones(size(tr_img_0,2),1)];
+x = [tr_img_c1 tr_img_c2];
+labs = ones(size(tr_img_c1,2),1);
+labs = [labs; -1*ones(size(tr_img_c2,2),1)];
 
 %Cov = pinv(cov(tr_images'));
 
@@ -22,11 +25,12 @@ cvx_end
 
 
 %% Test the data
-te_img_1 = t_images(:,t_labels==1);
-te_img_0 = t_images(:,t_labels==0);
-test_labs = [ones(size(te_img_1,2),1); zeros(size(te_img_0,2),1)];
+c2mask_test = t_labels==3 | t_labels==5;
+te_img_c1 = t_images(:,t_labels==label_c1);
+te_img_c2 = t_images(:,c2mask_test);
+test_labs = [ones(size(te_img_c1,2),1); zeros(size(te_img_c2,2),1)];
 
-x_test = [te_img_1 te_img_0];
+x_test = [te_img_c1 te_img_c2];
 
 g = B'*x_test + B0;
 g(g>=0) = 1;
