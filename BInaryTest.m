@@ -53,8 +53,8 @@ err_rate = num_errs/length(test_labs)
 
 %% Data Visualization
 
-num_pts_c1 = size(t_img_c1,2);
-num_pts_c2 = size(t_img_c2,2);
+num_pts_c1 = size(te_img_c1,2);
+num_pts_c2 = size(te_img_c2,2);
 NUM_VIS_PTS = max(num_pts_c1,num_pts_c2);
 %NUM_VIS_PTS = 100;
 x1_r2 = zeros(2,NUM_VIS_PTS);
@@ -75,8 +75,8 @@ B_r2 = MapPointsR2(B,B,B0);
 
 
 for i = 1:NUM_VIS_PTS
-    x1_r2(:,i) = MapPointsR2(t_img_c1(:,randi(num_pts_c1)),B, B0);
-    x2_r2(:,i) = MapPointsR2(t_img_c2(:,randi(num_pts_c2)),B, B0);
+    x1_r2(:,i) = MapPointsR2(te_img_c1(:,randi(num_pts_c1)),B, B0);
+    x2_r2(:,i) = MapPointsR2(te_img_c2(:,randi(num_pts_c2)),B, B0);
 end
 %%
 
