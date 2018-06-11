@@ -21,18 +21,23 @@ c2mask_test = t_labels==7; %| t_labels==5;
 	% Training
     tr_img_c1 = tr_images(:,c1mask);
     tr_img_c2 = tr_images(:,c2mask);
-    x = [tr_img_c1 tr_img_c2];
     
-labs      = [ones(size(tr_img_c1,2),1); -1*ones(size(tr_img_c2,2),1)];
+    % Take subset of examples
+    r = .1; % Ratio of total examples to use
+    tr_img_c1 = tr_img_c1(1:round(size(tr_img_c1,2)*r));
+    tr_img_c2 = tr_img_c2(1:round(size(tr_img_c2,2)*r));
+    
+    x = [tr_img_c1 tr_img_c2];
+    labs      = [ones(size(tr_img_c1,2),1); -1*ones(size(tr_img_c2,2),1)];
+
     
     % Test
     te_img_c1 = t_images(:,c1mask_test);
     te_img_c2 = t_images(:,c2mask_test);
     x_test = [te_img_c1 te_img_c2];
+    test_labs = [ones(size(te_img_c1,2),1); -1*ones(size(te_img_c2,2),1)];
 
-% Label data for binary classifier c1 = 1, c2 = -1;
 
-test_labs = [ones(size(te_img_c1,2),1); -1*ones(size(te_img_c2,2),1)];
 
 %% Optimization Problem
 cvx_begin
