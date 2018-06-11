@@ -13,9 +13,9 @@ end
 %% Defined Classes for comparison and prepare data
 % Masks for data selection
 c1mask      = tr_labels == 0;
-c2mask      = tr_labels == 7 | tr_labels == 5;
+c2mask      = tr_labels == 7; %| tr_labels == 5;
 c1mask_test = t_labels == 0;
-c2mask_test = t_labels==7 | t_labels==5;
+c2mask_test = t_labels==7; %| t_labels==5;
 
 % Get observation data selected classes
 	% Training
@@ -23,13 +23,15 @@ c2mask_test = t_labels==7 | t_labels==5;
     tr_img_c2 = tr_images(:,c2mask);
     x = [tr_img_c1 tr_img_c2];
     
+labs      = [ones(size(tr_img_c1,2),1); -1*ones(size(tr_img_c2,2),1)];
+    
     % Test
     te_img_c1 = t_images(:,c1mask_test);
     te_img_c2 = t_images(:,c2mask_test);
     x_test = [te_img_c1 te_img_c2];
 
 % Label data for binary classifier c1 = 1, c2 = -1;
-labs      = [ones(size(tr_img_c1,2),1); -1*ones(size(tr_img_c2,2),1)];
+
 test_labs = [ones(size(te_img_c1,2),1); -1*ones(size(te_img_c2,2),1)];
 
 %% Optimization Problem
@@ -88,6 +90,18 @@ hold on
 scatter(x1_r2(1,:),x1_r2(2,:),'rx')
 scatter(x2_r2(1,:),x2_r2(2,:),'bo')
 hold off
+
+%% Soft margin CCCCCC
+
+C=1;
+
+cvx_begin
+    variables Bs(784) Bs0 z(length(labs))
+    labs' .* (Bs'*x + Bs0) + z' >=1;
+    z >= 0;
+    minimize(Bs'*Bs + C*sum(z));
+cvx_end
+
 
 
 
