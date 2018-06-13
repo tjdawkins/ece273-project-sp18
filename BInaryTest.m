@@ -12,10 +12,10 @@ end
 
 %% Defined Classes for comparison and prepare data
 % Masks for data selection
-c1mask      = tr_labels == 0;
-c2mask      = tr_labels == 7; %| tr_labels == 5;
+c1mask      = tr_labels == 1;
+c2mask      = tr_labels == 0; %| tr_labels == 5;
 c1mask_test = t_labels == 0;
-c2mask_test = t_labels==7; %| t_labels==5;
+c2mask_test = t_labels == 7; %| t_labels==5;
 
 % Get observation data selected classes
 	% Training
@@ -23,9 +23,9 @@ c2mask_test = t_labels==7; %| t_labels==5;
     tr_img_c2 = tr_images(:,c2mask);
     
     % Take subset of examples
-    r = .1; % Ratio of total examples to use
-    tr_img_c1 = tr_img_c1(1:round(size(tr_img_c1,2)*r));
-    tr_img_c2 = tr_img_c2(1:round(size(tr_img_c2,2)*r));
+    r = .02; % Ratio of total examples to use
+    tr_img_c1 = tr_img_c1(:,1:round(size(tr_img_c1,2)*r));
+    tr_img_c2 = tr_img_c2(:,1:round(size(tr_img_c2,2)*r));
     
     x = [tr_img_c1 tr_img_c2];
     labs      = [ones(size(tr_img_c1,2),1); -1*ones(size(tr_img_c2,2),1)];
