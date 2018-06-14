@@ -48,11 +48,15 @@ function [ B, B0, z, as, SV, ys ] = svm_dual( X, y, c, kernel, kparam)
             a <= c;
             a'*y == 0;
             
-            minimize(.5*ay'*P*ay - sum(a))
+            minimize(.5*(a.*y)'*P*(a.*y) - sum(a))
         cvx_end
         
+        % Threshold bad scaling
+        %a(abs(a) < 1e-3) = 0;
+        %ay = a.*y;
+        
         B = sum(ay'.*X,2);
-        amask = a<=0 | a>=c;
+        amask = a<=1e-3 | a>=c;
         at = a;
         at(amask) = -inf;
         [~,i] = max(at);
@@ -63,7 +67,7 @@ function [ B, B0, z, as, SV, ys ] = svm_dual( X, y, c, kernel, kparam)
 
     end
     
-    amask = a>1e-6 & a<c;
+    amask = a>1e-3 & a<c;
     as = a(amask);
     SV = X(:,amask);
     ys = y(amask);
