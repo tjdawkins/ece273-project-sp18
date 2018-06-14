@@ -15,10 +15,14 @@ end
 
 % Generate Linearly Separablish Data
 ndata = 500;
-x1 = gen_data_linear_r2(ndata,40,2.5,45,[0;3*2.5]);
-x2 = gen_data_linear_r2(ndata,40,2.5,45,[0;-3*2.5]);
-y1 = ones(size(x1,2))';
-y2 = -ones(size(x2,2))';
+s = 3.25;
+r = -45;
+o = 4 * s;
+L = 40;
+x1 = gen_data_linear_r2(ndata,L,s,r,[0;o]);
+x2 = gen_data_linear_r2(ndata,L,s,r,[0;-o]);
+y1 = ones(size(x1,2),1);
+y2 = -ones(size(x2,2),1);
 
 
 figure
@@ -26,7 +30,7 @@ plot(x1(1,:),x1(2,:),'rx')
 hold on
 plot(x2(1,:),x2(2,:),'bx')
 
-
+%%
 % Generate some RBF type Data
 x3 = gen_data_radial_r2(1000,[5;5],4,10);
 x4 = gen_data_radial_r2(1000,[5,5],1);
@@ -38,7 +42,7 @@ plot(x3(1,:),x3(2,:),'ro')
 hold on
 plot(x4(1,:),x4(2,:),'bo')
 
-
+%%
 
 % Primal / Dual - Hard / Sorft Margins
 
@@ -57,10 +61,12 @@ plot(x4(1,:),x4(2,:),'bo')
 x = [ x1 x2];
 y = [ y1; y2];
 %%
-[Bs, B0s, as, SV, ys] = svm_dual(x,y,1);
-[Bs1, B0s1, SV1, ys1,z1] = svm_primal(x,y,1);
+cvx_precision high
+c = .1;
+[Bs, B0s, z, as, SV, ys] = svm_dual(x,y,c);
+[Bs1, B0s1, SV1, ys1,z1] = svm_primal(x,y,c);
 
-%% Visualize
+%% Visualize Dual
 figure
 plot(x1(1,:),x1(2,:),'rx')
 hold on
@@ -72,8 +78,7 @@ h = -(Bs(1)/Bs(2))*xt - B0s/Bs(2);
 plot(xt,h);
 plot(SV(1,:),SV(2,:),'gO')
 
-
-
+%% Visualize Primal
 figure
 plot(x1(1,:),x1(2,:),'rx')
 hold on
@@ -84,11 +89,19 @@ h1 = -(Bs1(1)/Bs1(2))*xt - B0s1/Bs1(2);
 h1l = -(Bs1(1)/Bs1(2))*xt - (B0s1+1)/Bs1(2);
 h1h = -(Bs1(1)/Bs1(2))*xt - (B0s1-1)/Bs1(2);
 plot(xt,h1);
-plot(xt,h1l);
-plot(xt,h1h);
+% Support Vectors
 plot(SV1(1,:),SV1(2,:),'gO')
 % Non-Negative Zeta Vector
 plot(x(1,z1>1e-6),x(2,z1>1e-6),'mo')
+% Margins
+plot(xt,h1l);
+plot(xt,h1h);
+
+
+%title('Hard Margin SVM - Linearly Separable Data')
+title(sprintf('Soft Margin SVM - C = %d',c));
+legend('Class 1', 'Class 2', 'Linear Discriminant', 'Support Vectors', 'Points Inside Margin')
+%legend('Class 1', 'Class 2', 'Linear Discriminant', 'Support Vectors', 'Points Inside Margin')
 hold off
 
 
