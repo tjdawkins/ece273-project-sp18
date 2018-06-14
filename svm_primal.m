@@ -1,4 +1,4 @@
-function [ B, B0, z ] = svm_primal( X, y, C )
+function [ B, B0, SV, ys, z ] = svm_primal( X, y, C )
 %SVM_PRIMAL Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -24,7 +24,8 @@ function [ B, B0, z ] = svm_primal( X, y, C )
         cvx_end
         
     end
-
-
+    S_mask = abs(abs(B'*X+B0) -1)<1e-6;
+    SV = X(:,S_mask);
+    ys = y(S_mask);
 end
 

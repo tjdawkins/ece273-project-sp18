@@ -1,8 +1,12 @@
-function [ B, B0 ] = svm_dual( X, y, c, kernel)
+function [ B, B0, as, SV, ys ] = svm_dual( X, y, c, kernel, kparam)
 %SVM_DUAL Summary of this function goes here
 %   Detailed explanation goes here
     if ~exist('kernel')
         kernel = 0;
+    end
+    
+    if ~exist('kparam')
+        kparam = 0;
     end
     
     n = size(X,1);
@@ -12,10 +16,12 @@ function [ B, B0 ] = svm_dual( X, y, c, kernel)
     switch kernel
         case 'rbf'
             XX1 = repmat(X,d,1);
-            XX2 = repmat(reshape(X,d*d,1),1,d);
+            XX2 = repmat(reshape(X,n*d,1),1,d);
             XXP = XX1 - XX2;
             XXP = reshape(XXP,n,d*d);
-            P = ve
+            P = vecnorm(XXP);
+            P = reshape(P,d,d);
+            P = exp(-P/2/kparam(1)^2);
         otherwise
             P = X'*X;
     end
@@ -34,7 +40,7 @@ function [ B, B0 ] = svm_dual( X, y, c, kernel)
         B = sum(ay'.*X,2);
         [~,i] = max(a);
         B0 = 1/y(i(1)) - B'*X(:,i(1));
-        
+        c = inf;
 
     else
         % Soft Margin
@@ -50,7 +56,7 @@ function [ B, B0 ] = svm_dual( X, y, c, kernel)
         cvx_end
         
         B = sum(ay'.*X,2);
-        amask = a<=0 & a>=c;
+        amask = a<=0 | a>=c;
         at = a;
         at(amask) = -inf;
         [~,i] = max(at);
@@ -61,7 +67,9 @@ function [ B, B0 ] = svm_dual( X, y, c, kernel)
 
     end
     
-    
-
+    amask = a>1e-6 & a<c;
+    as = a(amask);
+    SV = X(:,amask);
+    ys = y(amask);
 end
 
