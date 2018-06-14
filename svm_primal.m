@@ -12,7 +12,7 @@ function [ B, B0, SV, ys, z ] = svm_primal( X, y, C )
             minimize(B'*B)
         cvx_end
        
-        z = zeros(size(y));
+        ze = zeros(size(y));
        
     else
         % Soft Margin
