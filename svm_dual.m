@@ -1,11 +1,11 @@
-function [ B, B0, as, SV, ys ] = svm_dual( X, y, c, kernel, kparam)
+function [ B, B0, z, as, SV, ys ] = svm_dual( X, y, c, kernel, kparam)
 %SVM_DUAL Summary of this function goes here
 %   Detailed explanation goes here
-    if ~exist('kernel')
+    if ~exist('kernel','var')
         kernel = 0;
     end
     
-    if ~exist('kparam')
+    if ~exist('kparam','var')
         kparam = 0;
     end
     
@@ -24,18 +24,20 @@ function [ B, B0, as, SV, ys ] = svm_dual( X, y, c, kernel, kparam)
         % Hard Margin
         cvx_begin
             variables a(d) 
+            ay = a.*y;
             % Constraints
             a >= 0;
             a'*y == 0;
-            ay = a.*y;
+            
             minimize(.5*ay'*P*ay - sum(a))
         cvx_end
         
         B = sum(ay'.*X,2);
         [~,i] = max(a);
         B0 = 1/y(i(1)) - B'*X(:,i(1));
-        c = inf;
-
+        %c = inf;
+        z = 0;
+        
     else
         % Soft Margin
         cvx_begin
