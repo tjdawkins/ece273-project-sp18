@@ -14,8 +14,8 @@ end
 % Generate Data
 
 % Generate Linearly Separablish Data
-x1 = gen_data_linear_r2(100,20,2.5,45,[0;3.25*2]);
-x2 = gen_data_linear_r2(100,20,2.5,45,[0;-3.25*2]);
+x1 = gen_data_linear_r2(1000,20,2.5,45,[0;5*2]);
+x2 = gen_data_linear_r2(1000,20,2.5,45,[0;-5*2]);
 y1 = ones(size(x1,2))';
 y2 = -ones(size(x2,2))';
 
@@ -27,8 +27,8 @@ plot(x2(1,:),x2(2,:),'bx')
 
 
 % Generate some RBF type Data
-x3 = gen_data_radial_r2(100,[5;5],4,10);
-x4 = gen_data_radial_r2(100,[5,5],1);
+x3 = gen_data_radial_r2(1000,[5;5],4,10);
+x4 = gen_data_radial_r2(1000,[5,5],1);
 y1 = ones(size(x1,2),1);
 y2 = -ones(size(x2,2),1);
 
@@ -55,15 +55,18 @@ plot(x4(1,:),x4(2,:),'bo')
 % % Dual
 x = [ x1 x2];
 y = [ y1; y2];
-[Bd, B0, as, SV, ys] = svm_dual(x,y,1);
+[Bd, B0, as, SV, ys] = svm_dual(x,y,10);
 
-%%
+%% Visualize
 plot(x1(1,:),x1(2,:),'rx')
 hold on
 plot(x2(1,:),x2(2,:),'bx')
 xt = min([x1(1,:) x2(1,:)]):.25:max([x1(1,:) x2(1,:)]);
-h = -(B0 + Bd(1)*xt)/(Bd(2));
+
+% Boundary...
+h = -(Bd(1)/Bd(2))*xt - B0/Bd(2);
 plot(xt,h);
+plot(SV(1,:),SV(2,:),'gO')
 hold off
 
 
