@@ -14,8 +14,9 @@ end
 % Generate Data
 
 % Generate Linearly Separablish Data
-x1 = gen_data_linear_r2(1000,20,2.5,45,[0;5*2]);
-x2 = gen_data_linear_r2(1000,20,2.5,45,[0;-5*2]);
+ndata = 500;
+x1 = gen_data_linear_r2(ndata,40,2.5,45,[0;3*2.5]);
+x2 = gen_data_linear_r2(ndata,40,2.5,45,[0;-3*2.5]);
 y1 = ones(size(x1,2))';
 y2 = -ones(size(x2,2))';
 
@@ -39,7 +40,7 @@ plot(x4(1,:),x4(2,:),'bo')
 
 
 
-%% Primal / Dual - Hard / Sorft Margins
+% Primal / Dual - Hard / Sorft Margins
 
 % Train Models on Gen Data
 
@@ -55,9 +56,11 @@ plot(x4(1,:),x4(2,:),'bo')
 % % Dual
 x = [ x1 x2];
 y = [ y1; y2];
-[Bd, B0, as, SV, ys] = svm_dual(x,y,10);
+cvx_precision medium
+[Bd, B0, as, SV, ys] = svm_dual(x,y,.1);
 
 %% Visualize
+figure
 plot(x1(1,:),x1(2,:),'rx')
 hold on
 plot(x2(1,:),x2(2,:),'bx')
