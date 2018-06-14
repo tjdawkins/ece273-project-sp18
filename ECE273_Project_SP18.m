@@ -18,6 +18,7 @@ end
 
 %% Dual with Kernels
 
+%% Soft Margin
 
 %% SVM with MNIST Data Set: Data and labels 
 
@@ -64,20 +65,20 @@ c2mask_test = t_labels == 0; %| t_labels==5;
 % Dual Kernel rbf
 [Bdhk, B0dhk, asdhk, SVdhk, ysdhk] = svm_dual(x,y,0,'rbf',.25);
 
-% Testing
+%% Testing
 N=length(y_test);
 
 yph = decision_primal(Bph, B0ph, x_test);
 er_ph = sum(yph~=y_test)/N;
-ydh = decision_dual(asdh, ysdh, SVdh, x_test);
+ydh = decision_dual(asdh, ysdh, B0dh, SVdh, x_test);
 er_dh = sum(ydh~=y_test)/N;
 
 yps = decision_primal(Bps, B0ps, x_test);
 er_ps = sum(yps~=y_test)/N;
-yds = decision_dual(asds, ysds, SVds, x_test);
+yds = decision_dual(asds, ysds, B0ds, SVds, x_test);
 er_ds = sum(yds~=y_test)/N;
-
-ydhk= decision_dual(asdhk, ysdhk, SVdhk,x_test,'rbf',0.25);
+%
+ydhk= decision_dual(asdhk, ysdhk, B0dhk, SVdhk,x_test,'rbf',0.25);
 er_dhk = sum(ydhk~=y_test)/N;
 
 

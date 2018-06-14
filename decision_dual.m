@@ -1,4 +1,4 @@
-function [y] = decision_dual(as,ys,SV,X,kernel,kparam)
+function [y] = decision_dual(as,ys,b,SV,X,kernel,kparam)
 %DECISION_DUAL Summary of this function goes here
 %   Detailed explanation goes here
     if ~exist('kernel')
@@ -15,9 +15,9 @@ function [y] = decision_dual(as,ys,SV,X,kernel,kparam)
     % Kernel
     switch kernel
         case 'rbf'            
-            p = kernel_rbf(X,X,kparam);
+            p = kernel_rbf(SV,X,kparam);
         otherwise
-            p = kernel_induced(X,X);
+            p = kernel_induced(X,SV);
     end
     
     ay = as .* ys;
