@@ -15,15 +15,9 @@ function [ B, B0, as, SV, ys ] = svm_dual( X, y, c, kernel, kparam)
     % Kernel
     switch kernel
         case 'rbf'
-            XX1 = repmat(X,d,1);
-            XX2 = repmat(reshape(X,n*d,1),1,d);
-            XXP = XX1 - XX2;
-            XXP = reshape(XXP,n,d*d);
-            P = vecnorm(XXP);
-            P = reshape(P,d,d);
-            P = exp(-P/2/kparam(1)^2);
+            P = kernel_rbf(X,X,kparam);
         otherwise
-            P = X'*X;
+            P = kernel_induced(X,X);
     end
     
     if c == 0
