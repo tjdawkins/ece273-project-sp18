@@ -3,7 +3,6 @@ function [ B, B0, SV, ys, z ] = svm_primal( X, y, C )
 %   Detailed explanation goes here
 
     n = size(X,1);
-    z = 0;
 
     if C == 0
         % Hard Margin
@@ -13,19 +12,21 @@ function [ B, B0, SV, ys, z ] = svm_primal( X, y, C )
             minimize(B'*B)
         cvx_end
        
+        z = zeros(size(y));
        
     else
         % Soft Margin
         cvx_begin
-            variables B(n) B0 z(length(y))
-            y' .* (B'*X + B0) + z' >=1;
-            z >= 0;
-            minimize(B'*B + C*sum(z));
+            variables B(n) B0 ze(length(y))
+            y' .* (B'*X + B0) + ze' >= 1;
+            ze >= 0;
+            minimize(B'*B + C*sum(ze));
         cvx_end
         
     end
     S_mask = abs(abs(B'*X+B0) -1)<1e-6;
     SV = X(:,S_mask);
     ys = y(S_mask);
+    z = ze;
 end
 
