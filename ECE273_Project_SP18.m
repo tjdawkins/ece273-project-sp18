@@ -56,8 +56,9 @@ plot(x4(1,:),x4(2,:),'bo')
 % % Dual
 x = [ x1 x2];
 y = [ y1; y2];
-cvx_precision medium
-[Bd, B0, as, SV, ys] = svm_dual(x,y,.1);
+%%
+[Bs, B0s, as, SV, ys] = svm_dual(x,y,1);
+[Bs1, B0s1, SV1, ys1,z1] = svm_primal(x,y,1);
 
 %% Visualize
 figure
@@ -67,9 +68,27 @@ plot(x2(1,:),x2(2,:),'bx')
 xt = min([x1(1,:) x2(1,:)]):.25:max([x1(1,:) x2(1,:)]);
 
 % Boundary...
-h = -(Bd(1)/Bd(2))*xt - B0/Bd(2);
+h = -(Bs(1)/Bs(2))*xt - B0s/Bs(2);
 plot(xt,h);
 plot(SV(1,:),SV(2,:),'gO')
+
+
+
+figure
+plot(x1(1,:),x1(2,:),'rx')
+hold on
+plot(x2(1,:),x2(2,:),'bx')
+xt = min([x1(1,:) x2(1,:)]):.25:max([x1(1,:) x2(1,:)]);
+
+h1 = -(Bs1(1)/Bs1(2))*xt - B0s1/Bs1(2);
+h1l = -(Bs1(1)/Bs1(2))*xt - (B0s1+1)/Bs1(2);
+h1h = -(Bs1(1)/Bs1(2))*xt - (B0s1-1)/Bs1(2);
+plot(xt,h1);
+plot(xt,h1l);
+plot(xt,h1h);
+plot(SV1(1,:),SV1(2,:),'gO')
+% Non-Negative Zeta Vector
+plot(x(1,z1>1e-6),x(2,z1>1e-6),'mo')
 hold off
 
 
