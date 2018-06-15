@@ -1,4 +1,4 @@
-function [ B, B0, z, as, SV, ys ] = svm_dual( X, y, c, kernel, kparam)
+function [ B, B0, as, SV, ys, z ] = svm_dual( X, y, c, kernel, kparam)
 %SVM_DUAL Summary of this function goes here
 %   Detailed explanation goes here
     if ~exist('kernel','var')
@@ -11,6 +11,7 @@ function [ B, B0, z, as, SV, ys ] = svm_dual( X, y, c, kernel, kparam)
     
     n = size(X,1);
     d = size(X,2);
+    delta = 5e-9;
     
     % Kernel
     switch kernel
@@ -50,24 +51,21 @@ function [ B, B0, z, as, SV, ys ] = svm_dual( X, y, c, kernel, kparam)
             
             minimize(.5*(a.*y)'*P*(a.*y) - sum(a))
         cvx_end
-        
-        % Threshold bad scaling
-        %a(abs(a) < 1e-3) = 0;
-        %ay = a.*y;
-        
+
         B = sum(ay'.*X,2);
-        amask = a<=1e-3 | a>=c;
+        amask = a <= 0 + delta | a >= c - delta;
         at = a;
-        at(amask) = -inf;
+        at(amask) = 0;
+        %at(amask) = -inf;
         [~,i] = max(at);
-        B0 = 1/y(i(1)) - B'*X(:,i(1));
+        B0 = y(i(1)) - B'*X(:,i(1));
         z = 1 - y.*(X'*B + B0);
         z(a == 0) = 0;
                 
 
     end
     
-    amask = a>1e-3 & a<c;
+    amask = a>delta & a<c;
     as = a(amask);
     SV = X(:,amask);
     ys = y(amask);
