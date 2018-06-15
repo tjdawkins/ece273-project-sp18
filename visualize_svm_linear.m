@@ -23,7 +23,7 @@ function visualize_svm_linear(x1, x2, B, B0, SV, t, z, c)
     plot(SV(1,:),SV(2,:),'gO')
     % Non-Negative Zeta Vector
     if exist('z','var')
-        plot(x(1,z>1e-6),x(2,z>1e-6),'mo')
+        plot(x(1,z>1e-10),x(2,z>1e-10),'mo')
         % Margins
         plot(xt,hl);
         plot(xt,hh);

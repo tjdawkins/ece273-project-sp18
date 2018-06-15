@@ -1,3 +1,7 @@
+%%
+% ECE 273 - Final Project: Support Vector Machine
+% Yan Gong A99006702 / Thomas Dawkins A12447586
+
 %% Data Import / Generate
 
 % Load the MNIST Training/Test data and labels (if not loaded)
@@ -17,8 +21,8 @@ end
 % Class: 1 = class 1 / 2 = class 2
 % Structure: ls = linearly separable /  lns = linear non-separable / r = radial
 %% Generate Linearly Separable Data
-ndata = 500;
-ntest = 1000;
+ndata = 1000;
+ntest = 500;
 s = 2;
 r = 45;
 o = 3.5 * s;
@@ -31,10 +35,10 @@ y2ls = -ones(size(x2ls,2),1);
 % Test Data Linearly Seperable
 x1lst = gen_data_linear_r2(ntest,L,s,r,[0;+o]);
 x2lst = gen_data_linear_r2(ntest,L,s,r,[0;-o]);
-y1lst = ones(size(x1ls,2),1);
-y2lst = -ones(size(x2ls,2),1);
+y1lst = ones(size(x1lst,2),1);
+y2lst = -ones(size(x2lst,2),1);
 xlst = [x1lst x2lst];
-ylst = [y1lst y2lst];
+ylst = [y1lst; y2lst];
 
 figure
 plot(x1ls(1,:),x1ls(2,:),'rx')
@@ -55,10 +59,10 @@ y2lns = -ones(size(x2lns,2),1);
 % Test Data Linearly Non Seperable
 x1lnst = gen_data_linear_r2(ntest,L,s,r,[0;+o]);
 x2lnst = gen_data_linear_r2(ntest,L,s,r,[0;-o]);
-y1lnst = ones(size(x1lns,2),1);
-y2lnst = -ones(size(x2lns,2),1);
+y1lnst = ones(size(x1lnst,2),1);
+y2lnst = -ones(size(x2lnst,2),1);
 xlnst = [x1lnst x2lnst];
-ylnst = [y1lnst y2lnst];
+ylnst = [y1lnst; y2lnst];
 
 
 
@@ -80,7 +84,7 @@ x2rt = gen_data_linear_r2(ntest,L,s,r,[0;-o]);
 y1rt = ones(size(x1rt,2),1);
 y2rt = -ones(size(x2rt,2),1);
 xrt = [x1rt x2rt];
-yrt = [y1rt y2rt];
+yrt = [y1rt; y2rt];
 
 
 figure
@@ -103,35 +107,61 @@ yr = [ y1r; y2r];
 %% Train Models on Datasets
 cvx_precision high
 cvx_solver sedumi
-c = 1;
+Cl = 1;
+Cs = 1e-2;
+
 % Train Dual and Primal on Seperable and Non-Separable Data
 % Seperable
 [Bdls, B0dls, adls, SVdls, ysdls] = svm_dual(xls,yls,0);
 [Bpls, B0pls, SVpls, yspls] = svm_primal(xls,yls,0);
-% Non-Seperable
-[Bdlns, B0dlns, adlns, SVdlns, ysdlns, zdlns] = svm_dual(xlns,ylns,c);
-[Bplns, B0plns, SVplns, ysplns, zplns] = svm_primal(xlns,ylns,c);
+[Bplscs, B0plscs, SVplscs, ysplscs, zplscs] = svm_primal(xls,yls,Cs);
+[Bplscl, B0plscl, SVplscl, ysplscl, zplscl] = svm_primal(xls,yls,Cl);
 
-% Train Dual on Radial Data with rbf kernel
+
+% Non-Seperable
+%[Bdlns, B0dlns, adlns, SVdlns, ysdlns, zdlns] = svm_dual(xlns,ylns,c);
+[Bplnscs, B0plnscs, SVplnscs, ysplnscs, zplnscs] = svm_primal(xlns,ylns,Cs);
+[Bplnscl, B0plnscl, SVplnscl, ysplnscl, zplnscl] = svm_primal(xlns,ylns,Cl);
+
+%% Train Dual on Radial Data with rbf kernel
 [Br, B0r, ar, SVr, ysr, zr] = svm_dual(xr,yr,0,'rbf',.25);
 
 %% Visualie Hard Margin / Seperable
 figure
 visualize_svm_linear(x1ls, x2ls, Bpls, B0pls, SVpls, 'Linearly Seperable - Primal')
 figure
-visualize_svm_linear(x1ls, x2ls, Bdls, B0dls, SVdls, 'Linearly Seperable - Dual')
+visualize_svm_linear(x1ls, x2ls, Bdls, B0dls, SVpls, 'Linearly Seperable - Dual')
+%figure
+%visualize_svm_linear(x1lns, x2lns, Bplnscs, B0plnscs, SVplnscs, 'Linearly Seperable - Primal',zplns)
+%figure
+%visualize_svm_linear(x1lns, x2lns, Bdlns, B0dlns, SVdlns, 'Linearly Non Seperable - Dual',zdlns)
+
+%% Visulaize C
 figure
-visualize_svm_linear(x1lns, x2lns, Bplns, B0plns, SVplns, 'Linearly Seperable - Primal',zplns)
+visualize_svm_linear(x1ls, x2ls, Bpls, B0pls, SVpls, 'Linearly Seperable - Hard Margin')
 figure
-visualize_svm_linear(x1lns, x2lns, Bdlns, B0dlns, SVdlns, 'Linearly Non Seperable - Dual',zdlns)
+visualize_svm_linear(x1ls, x2ls, Bplscl, B0plscl, SVplscl, 'Linearly Seperable - C = 1',zplscl,Cl)
+figure
+visualize_svm_linear(x1ls, x2ls, Bplscs, B0plscs, SVplscs, 'Linearly Seperable - C = .001',zplscs,Cs)
 
 
 %% Classify New Expamples
+ytlsh = decision_primal(Bpls, B0pls, xlst);
+ytlscl = decision_primal(Bplscl, B0plscl, xlst);
+ytlscs = decision_primal(Bplscs, B0plscs, xlst);
 
+er_lsh = sum(ylst~=ytlsh)/ntest
+er_lscl = sum(ylst~=ytlscl)/ntest;
+er_lscs = sum(ylst~=ytlscs)/ntest;
 
+ytlnscl = decision_primal(Bplnscl, B0plnscl, xlnst);
+ytlnscs = decision_primal(Bplnscs, B0plnscs, xlnst);
 
+er_lnscl = sum(ylnst~=ytlnscl)/ntest;
+er_lnscs = sum(ylnst~=ytlnscs)/ntest;
 
-%% Soft Margin
+ytr = decision_dual(ar,ysr,B0r,SVr,xrt,'rbf',.25);
+er_r = sum(yrt~=ytr)/ntest;
 
 %% SVM with MNIST Data Set: Data and labels 
 
@@ -193,9 +223,3 @@ er_ds = sum(yds~=y_test)/N;
 %
 ydhk= decision_dual(asdhk, ysdhk, B0dhk, SVdhk,x_test,'rbf',0.25);
 er_dhk = sum(ydhk~=y_test)/N;
-
-
-
-
-
-

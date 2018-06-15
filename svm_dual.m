@@ -11,7 +11,7 @@ function [ B, B0, as, SV, ys, z ] = svm_dual( X, y, c, kernel, kparam)
     
     n = size(X,1);
     d = size(X,2);
-    delta = 5e-9;
+    delta = 5e-6;
     
     % Kernel
     switch kernel
@@ -65,7 +65,7 @@ function [ B, B0, as, SV, ys, z ] = svm_dual( X, y, c, kernel, kparam)
 
     end
     
-    amask = a>delta & a<c;
+    amask = a > delta & a < c + delta;
     as = a(amask);
     SV = X(:,amask);
     ys = y(amask);
