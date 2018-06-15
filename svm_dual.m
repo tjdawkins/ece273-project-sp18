@@ -11,7 +11,7 @@ function [ B, B0, as, SV, ys, z ] = svm_dual( X, y, c, kernel, kparam)
     
     n = size(X,1);
     d = size(X,2);
-    delta = 5e-6;
+    delta = 5e-3;
     
     % Kernel
     switch kernel
@@ -43,7 +43,6 @@ function [ B, B0, as, SV, ys, z ] = svm_dual( X, y, c, kernel, kparam)
         % Soft Margin
         cvx_begin
             variables a(d) 
-            ay = a.*y;
             % Constraints
             a >= 0;
             a <= c;
@@ -51,7 +50,8 @@ function [ B, B0, as, SV, ys, z ] = svm_dual( X, y, c, kernel, kparam)
             
             minimize(.5*(a.*y)'*P*(a.*y) - sum(a))
         cvx_end
-
+        
+        ay = a.*y;
         B = sum(ay'.*X,2);
         amask = a <= 0 + delta | a >= c - delta;
         at = a;

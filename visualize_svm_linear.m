@@ -3,7 +3,6 @@ function visualize_svm_linear(x1, x2, B, B0, SV, t, z, c)
 %   Detailed explanation goes here
 % Linearly Seperable
 
-
     x = [x1 x2];
     xt = min([x1(1,:) x2(1,:)]):.25:max([x1(1,:) x2(1,:)]);
 

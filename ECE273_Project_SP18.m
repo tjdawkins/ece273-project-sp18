@@ -124,7 +124,7 @@ Cs = 1e-2;
 [Bplnscl, B0plnscl, SVplnscl, ysplnscl, zplnscl] = svm_primal(xlns,ylns,Cl);
 
 %% Train Dual on Radial Data with rbf kernel
-[Br, B0r, ar, SVr, ysr, zr] = svm_dual(xr,yr,0,'rbf',.25);
+[Br, B0r, ar, SVr, ysr, zr] = svm_dual(xr,yr,1,'rbf',1);
 
 %% Visualie Hard Margin / Seperable
 figure
@@ -150,7 +150,7 @@ ytlsh = decision_primal(Bpls, B0pls, xlst);
 ytlscl = decision_primal(Bplscl, B0plscl, xlst);
 ytlscs = decision_primal(Bplscs, B0plscs, xlst);
 
-er_lsh = sum(ylst~=ytlsh)/ntest
+er_lsh = sum(ylst~=ytlsh)/ntest;
 er_lscl = sum(ylst~=ytlscl)/ntest;
 er_lscs = sum(ylst~=ytlscs)/ntest;
 
@@ -159,17 +159,17 @@ ytlnscs = decision_primal(Bplnscs, B0plnscs, xlnst);
 
 er_lnscl = sum(ylnst~=ytlnscl)/ntest;
 er_lnscs = sum(ylnst~=ytlnscs)/ntest;
-
-ytr = decision_dual(ar,ysr,B0r,SVr,xrt,'rbf',.25);
-er_r = sum(yrt~=ytr)/ntest;
+%%
+ytr = decision_dual(ar,ysr,B0r,SVr,xrt,'rbf',1);
+er_r = sum(yrt~=ytr)/ntest
 
 %% SVM with MNIST Data Set: Data and labels 
 
 % Defined Classes for comparison and prepare data
 % Masks for data selection
-c1mask      = tr_labels == 1;
+c1mask      = tr_labels == 8;
 c2mask      = tr_labels == 0; %| tr_labels == 5;
-c1mask_test = t_labels == 1;
+c1mask_test = t_labels == 8;
 c2mask_test = t_labels == 0; %| t_labels==5;
 
 % Get observation data selected classes
@@ -195,31 +195,32 @@ c2mask_test = t_labels == 0; %| t_labels==5;
 %% SVM with MNIST Data Set: Models
 
 % Train Model
-% Primal Hard
-[Bph, B0ph, SVph, ysph, ~] = svm_primal(x,y,0);
+%% Primal Hard
+% [Bph, B0ph, SVph, ysph, ~] = svm_primal(x,y,0);
 % Dual Hard
-[Bdh, B0dh, asdh, SVdh, ysdh] = svm_dual(x,y,0);
+% [Bdh, B0dh, asdh, SVdh, ysdh] = svm_dual(x,y,0);
 
 % Primal Soft
 [Bps, B0ps, SVps, ysps, ~] = svm_primal(x,y,1);
-% Dual Soft
-[Bds, B0ds, asds, SVds, ysds] = svm_dual(x,y,1);
 
-% Dual Kernel rbf
-[Bdhk, B0dhk, asdhk, SVdhk, ysdhk] = svm_dual(x,y,0,'rbf',.25);
+% % Dual Soft
+% [Bds, B0ds, asds, SVds, ysds] = svm_dual(x,y,1);
+% 
+% % Dual Kernel rbf
+% [Bdhk, B0dhk, asdhk, SVdhk, ysdhk] = svm_dual(x,y,0,'rbf',.25);
 
 %% Testing
 N=length(y_test);
-
-yph = decision_primal(Bph, B0ph, x_test);
-er_ph = sum(yph~=y_test)/N;
-ydh = decision_dual(asdh, ysdh, B0dh, SVdh, x_test);
-er_dh = sum(ydh~=y_test)/N;
+% 
+% yph = decision_primal(Bph, B0ph, x_test);
+% er_ph = sum(yph~=y_test)/N;
+% ydh = decision_dual(asdh, ysdh, B0dh, SVdh, x_test);
+% er_dh = sum(ydh~=y_test)/N;
 
 yps = decision_primal(Bps, B0ps, x_test);
 er_ps = sum(yps~=y_test)/N;
 yds = decision_dual(asds, ysds, B0ds, SVds, x_test);
-er_ds = sum(yds~=y_test)/N;
+er_ds = sum(yds~=y_test)/N
 %
-ydhk= decision_dual(asdhk, ysdhk, B0dhk, SVdhk,x_test,'rbf',0.25);
-er_dhk = sum(ydhk~=y_test)/N;
+% ydhk= decision_dual(asdhk, ysdhk, B0dhk, SVdhk,x_test,'rbf',0.25);
+% er_dhk = sum(ydhk~=y_test)/N;
