@@ -11,104 +11,125 @@ if ~exist('dataLoadedMNIST','var')
 
 end
 
-% Generate Data
-
-% Generate Linearly Separablish Data
+%% Generate Data
+% Variable naming : {data}{class}{structure}
+% Data: x = examples / y = labels
+% Class: 1 = class 1 / 2 = class 2
+% Structure: ls = linearly separable /  lns = linear non-separable / r = radial
+%% Generate Linearly Separable Data
 ndata = 500;
-s = 3.25;
-r = -45;
-o = 4 * s;
+ntest = 1000;
+s = 2;
+r = 45;
+o = 3.5 * s;
 L = 40;
-x1 = gen_data_linear_r2(ndata,L,s,r,[0;o]);
-x2 = gen_data_linear_r2(ndata,L,s,r,[0;-o]);
-y1 = ones(size(x1,2),1);
-y2 = -ones(size(x2,2),1);
+x1ls = gen_data_linear_r2(ndata,L,s,r,[0;+o]);
+x2ls = gen_data_linear_r2(ndata,L,s,r,[0;-o]);
+y1ls = ones(size(x1ls,2),1);
+y2ls = -ones(size(x2ls,2),1);
+
+% Test Data Linearly Seperable
+x1lst = gen_data_linear_r2(ntest,L,s,r,[0;+o]);
+x2lst = gen_data_linear_r2(ntest,L,s,r,[0;-o]);
+y1lst = ones(size(x1ls,2),1);
+y2lst = -ones(size(x2ls,2),1);
+xlst = [x1lst x2lst];
+ylst = [y1lst y2lst];
+
+figure
+plot(x1ls(1,:),x1ls(2,:),'rx')
+hold on
+plot(x2ls(1,:),x2ls(2,:),'bx')
+
+%% Generate Linearly Separablish Data
+ndata = 500;
+s = 2;
+r = 45;
+o = 2 * s;
+L = 40;
+x1lns = gen_data_linear_r2(ndata,L,s,r,[0;+o]);
+x2lns = gen_data_linear_r2(ndata,L,s,r,[0;-o]);
+y1lns = ones(size(x1lns,2),1);
+y2lns = -ones(size(x2lns,2),1);
+
+% Test Data Linearly Non Seperable
+x1lnst = gen_data_linear_r2(ntest,L,s,r,[0;+o]);
+x2lnst = gen_data_linear_r2(ntest,L,s,r,[0;-o]);
+y1lnst = ones(size(x1lns,2),1);
+y2lnst = -ones(size(x2lns,2),1);
+xlnst = [x1lnst x2lnst];
+ylnst = [y1lnst y2lnst];
+
 
 
 figure
-plot(x1(1,:),x1(2,:),'rx')
+plot(x1lns(1,:),x1lns(2,:),'rx')
 hold on
-plot(x2(1,:),x2(2,:),'bx')
+plot(x2lns(1,:),x2lns(2,:),'bx')
 
-%%
-% Generate some RBF type Data
-x3 = gen_data_radial_r2(1000,[5;5],4,10);
-x4 = gen_data_radial_r2(1000,[5,5],1);
-y1 = ones(size(x1,2),1);
-y2 = -ones(size(x2,2),1);
+%% Generate some RBF type Data
+u = [5;5];
+x1r = gen_data_radial_r2(1000,u,4,12);
+x2r = gen_data_radial_r2(500,u,.75);
+y1r = ones(size(x1r,2),1);
+y2r = -ones(size(x2r,2),1);
+
+% Test Data Radial
+x1rt = gen_data_linear_r2(ntest,L,s,r,[0;+o]);
+x2rt = gen_data_linear_r2(ntest,L,s,r,[0;-o]);
+y1rt = ones(size(x1rt,2),1);
+y2rt = -ones(size(x2rt,2),1);
+xrt = [x1rt x2rt];
+yrt = [y1rt y2rt];
+
 
 figure
-plot(x3(1,:),x3(2,:),'ro')
+plot(x1r(1,:),x1r(2,:),'ro')
 hold on
-plot(x4(1,:),x4(2,:),'bo')
+plot(x2r(1,:),x2r(2,:),'bo')
 
-%%
+%% Train Models on Gen Data
+% Training Data
+% Data: x = examples / y = labels
+% Class: 1 = class 1 / 2 = class 2
+% Structure: ls = linearly separable /  lns = linear non-separable / r = radial
+xls = [ x1ls x2ls];
+yls = [ y1ls; y2ls];
+xlns = [ x1lns x2lns];
+ylns = [ y1lns; y2lns];
+xr = [ x1r x2r];
+yr = [ y1r; y2r];
 
-% Primal / Dual - Hard / Sorft Margins
-
-% Train Models on Gen Data
-
-% % Hard Margins
-% % Primal
-% [Bph, B0ph, SVph, ysph, ~] = svm_primal(x,y,0);
-% % Dual
-% [Bdh, B0dh, asdh, SVdh, ysdh] = svm_dual(x,y,0);
-% 
-% % Soft Margins
-% % Primal               
-% [Bps, B0ps, SVps, ysps, ~] = svm_primal(x,y,1);
-% % Dual
-x = [ x1 x2];
-y = [ y1; y2];
-%%
+%% Train Models on Datasets
 cvx_precision high
-c = .1;
-[Bs, B0s, z, as, SV, ys] = svm_dual(x,y,c);
-[Bs1, B0s1, SV1, ys1,z1] = svm_primal(x,y,c);
+cvx_solver sedumi
+c = 1;
+% Train Dual and Primal on Seperable and Non-Separable Data
+% Seperable
+[Bdls, B0dls, adls, SVdls, ysdls] = svm_dual(xls,yls,0);
+[Bpls, B0pls, SVpls, yspls] = svm_primal(xls,yls,0);
+% Non-Seperable
+[Bdlns, B0dlns, adlns, SVdlns, ysdlns, zdlns] = svm_dual(xlns,ylns,c);
+[Bplns, B0plns, SVplns, ysplns, zplns] = svm_primal(xlns,ylns,c);
 
-%% Visualize Dual
+% Train Dual on Radial Data with rbf kernel
+[Br, B0r, ar, SVr, ysr, zr] = svm_dual(xr,yr,0,'rbf',.25);
+
+%% Visualie Hard Margin / Seperable
 figure
-plot(x1(1,:),x1(2,:),'rx')
-hold on
-plot(x2(1,:),x2(2,:),'bx')
-xt = min([x1(1,:) x2(1,:)]):.25:max([x1(1,:) x2(1,:)]);
-
-% Boundary...
-h = -(Bs(1)/Bs(2))*xt - B0s/Bs(2);
-plot(xt,h);
-plot(SV(1,:),SV(2,:),'gO')
-
-%% Visualize Primal
+visualize_svm_linear(x1ls, x2ls, Bpls, B0pls, SVpls, 'Linearly Seperable - Primal')
 figure
-plot(x1(1,:),x1(2,:),'rx')
-hold on
-plot(x2(1,:),x2(2,:),'bx')
-xt = min([x1(1,:) x2(1,:)]):.25:max([x1(1,:) x2(1,:)]);
-
-h1 = -(Bs1(1)/Bs1(2))*xt - B0s1/Bs1(2);
-h1l = -(Bs1(1)/Bs1(2))*xt - (B0s1+1)/Bs1(2);
-h1h = -(Bs1(1)/Bs1(2))*xt - (B0s1-1)/Bs1(2);
-plot(xt,h1);
-% Support Vectors
-plot(SV1(1,:),SV1(2,:),'gO')
-% Non-Negative Zeta Vector
-plot(x(1,z1>1e-6),x(2,z1>1e-6),'mo')
-% Margins
-plot(xt,h1l);
-plot(xt,h1h);
+visualize_svm_linear(x1ls, x2ls, Bdls, B0dls, SVdls, 'Linearly Seperable - Dual')
+figure
+visualize_svm_linear(x1lns, x2lns, Bplns, B0plns, SVplns, 'Linearly Seperable - Primal',zplns)
+figure
+visualize_svm_linear(x1lns, x2lns, Bdlns, B0dlns, SVdlns, 'Linearly Non Seperable - Dual',zdlns)
 
 
-%title('Hard Margin SVM - Linearly Separable Data')
-title(sprintf('Soft Margin SVM - C = %d',c));
-legend('Class 1', 'Class 2', 'Linear Discriminant', 'Support Vectors', 'Points Inside Margin')
-%legend('Class 1', 'Class 2', 'Linear Discriminant', 'Support Vectors', 'Points Inside Margin')
-hold off
+%% Classify New Expamples
 
 
-% % Dual Kernel rbf
-% [Bdhk, B0dhk, asdhk, SVdhk, ysdhk] = svm_dual(x,y,0,'rbf',.25);
 
-%% Dual with Kernels
 
 %% Soft Margin
 
